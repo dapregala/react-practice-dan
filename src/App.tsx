@@ -114,7 +114,7 @@ export default function App() {
     Swal.fire('Employee successfully added!', '', 'success');
   };
 
-  const handlePersonalInfoSubmitEdit = async (employee) => {
+  const handlePersonalInfoSubmitEdit = async () => {
     const fieldsToValidate = Object.keys(emptyEmployeeForm).filter(field => field != 'employeeId');
     console.log(fieldsToValidate)
     console.log(fieldsToValidate)
@@ -128,12 +128,16 @@ export default function App() {
     const hasErrors = validationResults.some((result) => result === false);
 
     if (!hasErrors) {
+      const employee = getValues();
+      employee.status = 'submitted';
       setEmployeeList({ ...employeeList, [employee.employeeId]: employee });
       setSelectedEmployeeId(employee.employeeId);
       setFormMode('view');
       Swal.fire('Employee successfully updated!', '', 'success');
     }
   };
+
+  console.log(employeeList)
 
   // custom draft minimum fields validation
   const handlePersonalInfoSubmitDraft = async () => {
