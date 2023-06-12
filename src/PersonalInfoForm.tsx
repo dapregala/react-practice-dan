@@ -52,6 +52,19 @@ const PersonalInfoForm = ({
           )}
         />
       </div>
+      <div>
+        <label>Last Name</label>
+        <Controller
+          control={control}
+          name="lastName"
+          render={({ field, fieldState: { error } }) => (
+            <div>
+              <input {...field} />
+              {error && <p className="form-errors">{error.message}</p>}
+            </div>
+          )}
+        />
+      </div>
     </form>
   );
 };
