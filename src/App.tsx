@@ -106,12 +106,33 @@ export default function App() {
     setFormMode('view');
   };
 
-  const handlePersonalInfoSubmitFinal = (employee) => {
+  const handlePersonalInfoSubmitAdd = (employee) => {
     employee.status = 'submitted';
     setEmployeeList({ ...employeeList, [employee.employeeId]: employee });
     setSelectedEmployeeId(employee.employeeId);
     setFormMode('view');
     Swal.fire('Employee successfully added!', '', 'success');
+  };
+
+  const handlePersonalInfoSubmitEdit = async (employee) => {
+    const fieldsToValidate = Object.keys(emptyEmployeeForm).filter(field => field != 'employeeId');
+    console.log(fieldsToValidate)
+    console.log(fieldsToValidate)
+    // Trigger validation for the specific fields only
+    const validationResults = await Promise.all(
+      fieldsToValidate.map((fieldName) => trigger(fieldName))
+    );
+
+    console.log(validationResults);
+
+    const hasErrors = validationResults.some((result) => result === false);
+
+    if (!hasErrors) {
+      setEmployeeList({ ...employeeList, [employee.employeeId]: employee });
+      setSelectedEmployeeId(employee.employeeId);
+      setFormMode('view');
+      Swal.fire('Employee successfully updated!', '', 'success');
+    }
   };
 
   // custom draft minimum fields validation
@@ -149,8 +170,14 @@ export default function App() {
   };
 
   const checkEmployeeIdUniqueness = (employeeId) => {
-    console.log(employeeId);
-    return ![...submittedList, ...draftList].some(
+    let existingListBasis = [];
+    const employeeFormStatus = getValues().status;
+    if (employeeFormStatus == 'submitted' || employeeFormStatus == 'new') {
+      existingListBasis = [...submittedList, ...draftList];
+    } else if (employeeFormStatus == 'draft'){
+      existingListBasis = [...submittedList];
+    }
+    return !existingListBasis.some(
       (existingEmployee) => existingEmployee.employeeId == employeeId
     );
   };
@@ -281,12 +308,18 @@ export default function App() {
 
         {formMode != 'view' && (
           <div className="buttons-container">
-            <button
+            {formMode == 'add' && <button
               type="submit"
-              onClick={handleSubmit(handlePersonalInfoSubmitFinal)}
+              onClick={handleSubmit(handlePersonalInfoSubmitAdd)}
             >
               Submit
-            </button>
+            </button>}
+            {formMode == 'edit' && <button
+              type="submit"
+              onClick={handlePersonalInfoSubmitEdit}
+            >
+              Submit
+            </button>}
             {employeeList[selectedEmployeeId]?.status != 'submitted' && (
               <button type="submit" onClick={handlePersonalInfoSubmitDraft}>
                 Save as Draft
