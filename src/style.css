@@ -1,0 +1,75 @@
+h1,
+p {
+  font-family: Lato;
+}
+
+.form-errors {
+  color: red;
+}
+
+.sidebar {
+  width: 200px;
+  background-color: #f2f2f2;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+.app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: space-around;
+  background-color: #f2f2f2;
+  padding: 10px 0;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 20px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  color: #888;
+  transition: color 0.3s ease;
+}
+
+.tab.active {
+  color: #333;
+  border-bottom: 2px solid #333;
+}
+
+.content {
+  margin-top: 20px;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.content h2 {
+  margin-top: 0;
+}
+
+.content p {
+  margin-bottom: 0;
+}
+
+.tabs-and-content-container {
+  margin-left: 140px;
+}
