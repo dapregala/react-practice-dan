@@ -1,11 +1,12 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
 const schema = yup.object().shape({
   firstName: yup.string().required('First name is required'),
-  middleName: yup.string(),
+  middleName: yup.string().strict(),
   lastName: yup.string().required('Last name is required'),
   birthday: yup.date().required('Birthday is required'),
   maritalStatus: yup
@@ -20,6 +21,13 @@ const schema = yup.object().shape({
     .number()
     .required('Employee ID is required')
     .typeError('Employee ID must be a number')
+    .test('unique', 'Employee ID must be unique', async function (value) {
+      const { checkEmployeeIdUniqueness } = this.options.context; // Access the validation function from the context
+
+      if (!value) return true; // Skip the test if the field is empty
+
+      return checkEmployeeIdUniqueness(value); // Call the validation function and return the result
+    })
     .test(
       'len',
       'Employee ID must be exactly 7 characters',
@@ -27,36 +35,57 @@ const schema = yup.object().shape({
     ),
 });
 
-const Form = () => {
+const Form = ({
+  values,
+  onSubmitFinal,
+  onSubmitDraft,
+  checkEmployeeIdUniqueness,
+}) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    trigger,
+    getValues,
+    clearErrors,
   } = useForm({
     resolver: yupResolver(schema),
-    mode: 'onTouched'
+    mode: 'onTouched',
+    values: values,
+    context: { checkEmployeeIdUniqueness },
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
-    console.log(errors);
+  const onSaveAsDraft = async (e) => {
+    e.preventDefault();
+    clearErrors();
+    const fieldsToValidate = [
+      // submitting drafts only require these fields
+      'employeeId',
+      'firstName',
+      'lastName',
+    ];
+
+    // Trigger validation for the specific fields
+    const validationResults = await Promise.all(
+      fieldsToValidate.map((fieldName) => trigger(fieldName))
+    );
+
+    const hasErrors = validationResults.some((result) => result === false);
+
+    if (!hasErrors) {
+      onSubmitDraft(getValues());
+    } else {
+      console.log('Form is not valid. Cannot save as draft.');
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form>
       <div>
         <label>First Name</label>
         <input type="text" {...register('firstName')} />
         {errors.firstName && (
           <p className="form-errors">{errors.firstName.message}</p>
-        )}
-      </div>
-
-      <div>
-        <label>Middle Name</label>
-        <input type="text" {...register('middleName')} />
-        {errors.middleName && (
-          <p className="form-errors">{errors.middleName.message}</p>
         )}
       </div>
 
@@ -110,7 +139,16 @@ const Form = () => {
         )}
       </div>
 
-      <button type="submit">Submit</button>
+      {/* onSubmit={handleSubmit(onSubmit)} */}
+
+      <button type="submit" onClick={handleSubmit(onSubmitFinal)}>
+        Submit
+      </button>
+      {(values?.status == 'draft' || values?.status == 'new') && (
+        <button type="submit" onClick={onSaveAsDraft}>
+          Save as Draft
+        </button>
+      )}
     </form>
   );
 };
