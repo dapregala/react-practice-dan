@@ -6,6 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
 const PersonalInfoForm = ({
+  formHeader,
   shouldDisableEmployeeId,
   shouldDisableAllFields,
 }) => {
@@ -13,6 +14,9 @@ const PersonalInfoForm = ({
 
   return (
     <form className="personal-info-form">
+      <div>
+        <h3>{formHeader}</h3>
+      </div>
       <div>
         <label>First Name</label>
         <Controller

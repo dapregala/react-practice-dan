@@ -104,7 +104,7 @@ export default function App() {
 
   const handleClickCancelEdit = () => {
     setFormMode('view');
-  }
+  };
 
   const handlePersonalInfoSubmitFinal = (employee) => {
     employee.status = 'submitted';
@@ -160,6 +160,16 @@ export default function App() {
 
   const { handleSubmit, clearErrors, trigger, getValues } =
     personalInfoFormMethods;
+
+  const getFormHeader = () => {
+    if (formMode == 'add') {
+      return 'Add New Employee';
+    } else if (formMode == 'view') {
+      return 'View Employee';
+    } else if (formMode == 'edit') {
+      return 'Edit Employee';
+    }
+  };
 
   return (
     <div className="app">
@@ -241,6 +251,7 @@ export default function App() {
             <div>
               <FormProvider {...personalInfoFormMethods}>
                 <PersonalInfoForm
+                  formHeader={getFormHeader()}
                   shouldDisableAllFields={formMode == 'view'}
                   shouldDisableEmployeeId={
                     employeeList[selectedEmployeeId] &&
@@ -277,9 +288,10 @@ export default function App() {
                 Save as Draft
               </button>
             )}
-            {employeeList[selectedEmployeeId] && employeeList[selectedEmployeeId]?.status != 'new' && (
-              <button onClick={handleClickCancelEdit}>Cancel Editing</button>
-            )}
+            {employeeList[selectedEmployeeId] &&
+              employeeList[selectedEmployeeId]?.status != 'new' && (
+                <button onClick={handleClickCancelEdit}>Cancel Editing</button>
+              )}
           </div>
         )}
         {formMode == 'view' && (
