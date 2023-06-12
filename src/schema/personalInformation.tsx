@@ -24,7 +24,7 @@ const schema = yup.object().shape({
     .test('unique', 'Employee ID must be unique', async function (value) {
       // Validates thru API call
       if (!value) return true; // Skip the test if the field is empty
-
+      console.log('test')
       const { checkEmployeeIdUniqueness } = this.options.context;
       return checkEmployeeIdUniqueness(value); // Call the validation function and return the result
     })

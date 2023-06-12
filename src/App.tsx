@@ -129,6 +129,8 @@ export default function App() {
       fieldsToValidate.map((fieldName) => trigger(fieldName))
     );
 
+    console.log(validationResults);
+
     const hasErrors = validationResults.some((result) => result === false);
 
     if (!hasErrors) {
@@ -139,6 +141,7 @@ export default function App() {
         [employeeForm.employeeId]: employeeForm,
       });
       setSelectedEmployeeId(employeeForm.employeeId);
+      setFormMode('view');
       Swal.fire('Employee successfully saved as draft!', '', 'success');
     } else {
       console.log('Form is not valid. Cannot save as draft.');
@@ -146,8 +149,9 @@ export default function App() {
   };
 
   const checkEmployeeIdUniqueness = (employeeId) => {
-    return !submittedList.some(
-      (existingEmployee) => existingEmployee.employeId == employeeId
+    console.log(employeeId);
+    return ![...submittedList, ...draftList].some(
+      (existingEmployee) => existingEmployee.employeeId == employeeId
     );
   };
 
