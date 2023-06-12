@@ -7,48 +7,57 @@ import PersonalInfoForm from './PersonalInfoForm';
 import HobbiesAndInterestsForm from './HobbiesAndInterestsForm';
 import FavoriteThingsForm from './FavoriteThingsForm';
 import Swal from 'sweetalert2';
-import { FormProvider, useForm } from 'react-hook-form';
+import {
+  FormProvider,
+  useForm,
+  useWatch,
+  useFormContext,
+} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import personalInformationSchema from './schema/personalInformation'
+import personalInformationSchema from './schema/personalInformation';
 
 const emptyEmployeeForm = {
   status: 'new',
   birthday: '',
-  citizenship: '',
-  employeeId: null,
+  address: '',
+  employeeId: '',
   firstName: '',
   lastName: '',
   maritalStatus: '',
   middleName: '',
+  gender: '',
 };
 
 const initialEmployeeList = [
   {
     status: 'submitted',
     birthday: '1900-01-09T16:00:00.000Z',
-    citizenship: 'martian',
+    address: 'bikiniBottom',
     employeeId: 2345678,
     firstName: 'Squidward',
     lastName: 'Tentacles',
     maritalStatus: 'single',
+    gender: 'male',
   },
   {
     status: 'submitted',
     birthday: '1993-06-09T16:00:00.000Z',
-    citizenship: 'earthborn',
+    address: 'bikiniBottom',
     employeeId: 5454123,
     firstName: 'Eugene',
     lastName: 'Krabs',
     maritalStatus: 'married',
+    gender: 'male',
   },
   {
     status: 'submitted',
     birthday: '1993-06-09T16:00:00.000Z',
-    citizenship: 'earthborn',
+    address: 'bikiniBottom',
     employeeId: 1234567,
     firstName: 'Spongebob',
     lastName: 'Squarepants',
     maritalStatus: 'single',
+    gender: 'male',
   },
   {
     status: 'draft',
@@ -59,12 +68,14 @@ const initialEmployeeList = [
 ].reduce((acc, employee) => {
   acc[employee.employeeId] = employee;
   return acc;
-}, {});
+}, {}); // Normalize into [employeeID]:{...employeeObject}
 
 export default function App() {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(0);
   const [employeeList, setEmployeeList] = useState(initialEmployeeList);
+  const [formMode, setFormMode] = useState('add');
+
   const submittedList = Object.keys(employeeList)
     .map((id) => employeeList[id])
     .filter((emp) => emp.status == 'submitted');
@@ -78,24 +89,60 @@ export default function App() {
 
   const handleClickEmployeeItem = (employeeId) => {
     setSelectedEmployeeId(employeeId);
+    setFormMode('view');
   };
 
-  const getEmployeeFromList = (employeeId, list) => {
-    return list[employeeId];
+  const handleClickAddEmployeeButton = () => {
+    setFormMode('add');
+    setSelectedEmployeeId(0);
+    personalInfoFormMethods.reset(emptyEmployeeForm);
   };
+
+  const handleClickEdit = () => {
+    setFormMode('edit');
+  };
+
+  const handleClickCancelEdit = () => {
+    setFormMode('view');
+  }
 
   const handlePersonalInfoSubmitFinal = (employee) => {
     employee.status = 'submitted';
     setEmployeeList({ ...employeeList, [employee.employeeId]: employee });
     setSelectedEmployeeId(employee.employeeId);
+    setFormMode('view');
     Swal.fire('Employee successfully added!', '', 'success');
   };
 
-  const handlePersonalInfoSubmitDraft = (employee) => {
-    employee.status = 'draft';
-    setEmployeeList({ ...employeeList, [employee.employeeId]: employee });
-    setSelectedEmployeeId(employee.employeeId);
-    Swal.fire('Employee successfully saved as draft!', '', 'success');
+  // custom draft minimum fields validation
+  const handlePersonalInfoSubmitDraft = async () => {
+    clearErrors(); // Clear errors in unneeded fields
+    const fieldsToValidate = [
+      // submitting drafts only require these fields
+      'employeeId',
+      'firstName',
+      'lastName',
+    ];
+
+    // Trigger validation for the specific fields only
+    const validationResults = await Promise.all(
+      fieldsToValidate.map((fieldName) => trigger(fieldName))
+    );
+
+    const hasErrors = validationResults.some((result) => result === false);
+
+    if (!hasErrors) {
+      const employeeForm = getValues();
+      employeeForm.status = 'draft';
+      setEmployeeList({
+        ...employeeList,
+        [employeeForm.employeeId]: employeeForm,
+      });
+      setSelectedEmployeeId(employeeForm.employeeId);
+      Swal.fire('Employee successfully saved as draft!', '', 'success');
+    } else {
+      console.log('Form is not valid. Cannot save as draft.');
+    }
   };
 
   const checkEmployeeIdUniqueness = (employeeId) => {
@@ -111,10 +158,19 @@ export default function App() {
     context: { checkEmployeeIdUniqueness },
   });
 
+  const { handleSubmit, clearErrors, trigger, getValues } =
+    personalInfoFormMethods;
+
   return (
     <div className="app">
       <div className="sidebar">
-        <img className="logo" src="https://eatatthekrustykrab.files.wordpress.com/2018/04/logo.png"/>
+        <div className="logo-container">
+          <img
+            className="logo"
+            src="https://eatatthekrustykrab.files.wordpress.com/2018/04/logo.png"
+          />
+        </div>
+
         <h3>Employees</h3>
         <ul>
           {submittedList.map((emp) => {
@@ -129,14 +185,6 @@ export default function App() {
               </li>
             );
           })}
-          <li
-            className={selectedEmployeeId == 0 ? 'active' : ''}
-            onClick={() => {
-              handleClickEmployeeItem(0);
-            }}
-          >
-            Add New Employee
-          </li>
         </ul>
 
         <h3>Drafts</h3>
@@ -156,6 +204,15 @@ export default function App() {
             );
           })}
         </ul>
+
+        <div className="buttons-container">
+          <button
+            className="add-employee"
+            onClick={handleClickAddEmployeeButton}
+          >
+            Add an Employee
+          </button>
+        </div>
       </div>
       <div className="tabs-and-content-container">
         <div className="tabs-container">
@@ -184,14 +241,11 @@ export default function App() {
             <div>
               <FormProvider {...personalInfoFormMethods}>
                 <PersonalInfoForm
-                  values={
-                    selectedEmployeeId == 0
-                      ? emptyEmployeeForm
-                      : getEmployeeFromList(selectedEmployeeId, employeeList)
+                  shouldDisableAllFields={formMode == 'view'}
+                  shouldDisableEmployeeId={
+                    employeeList[selectedEmployeeId] &&
+                    employeeList[selectedEmployeeId]?.status != 'new'
                   }
-                  onSubmitFinal={handlePersonalInfoSubmitFinal}
-                  onSubmitDraft={handlePersonalInfoSubmitDraft}
-                  checkEmployeeIdUniqueness={checkEmployeeIdUniqueness}
                 ></PersonalInfoForm>
               </FormProvider>
             </div>
@@ -209,6 +263,30 @@ export default function App() {
             </div>
           )}
         </div>
+
+        {formMode != 'view' && (
+          <div className="buttons-container">
+            <button
+              type="submit"
+              onClick={handleSubmit(handlePersonalInfoSubmitFinal)}
+            >
+              Submit
+            </button>
+            {employeeList[selectedEmployeeId]?.status != 'submitted' && (
+              <button type="submit" onClick={handlePersonalInfoSubmitDraft}>
+                Save as Draft
+              </button>
+            )}
+            {employeeList[selectedEmployeeId] && employeeList[selectedEmployeeId]?.status != 'new' && (
+              <button onClick={handleClickCancelEdit}>Cancel Editing</button>
+            )}
+          </div>
+        )}
+        {formMode == 'view' && (
+          <div className="buttons-container">
+            <button onClick={handleClickEdit}>Edit</button>
+          </div>
+        )}
       </div>
     </div>
   );

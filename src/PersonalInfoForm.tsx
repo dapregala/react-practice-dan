@@ -6,39 +6,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
 const PersonalInfoForm = ({
-  values,
-  onSubmitFinal,
-  onSubmitDraft,
-  checkEmployeeIdUniqueness,
+  shouldDisableEmployeeId,
+  shouldDisableAllFields,
 }) => {
   const { control } = useFormContext();
 
-  // const onSaveAsDraft = async (e) => {
-  //   e.preventDefault();
-  //   clearErrors();
-  //   const fieldsToValidate = [
-  //     // submitting drafts only require these fields
-  //     'employeeId',
-  //     'firstName',
-  //     'lastName',
-  //   ];
-
-  //   // Trigger validation for the specific fields only
-  //   const validationResults = await Promise.all(
-  //     fieldsToValidate.map((fieldName) => trigger(fieldName))
-  //   );
-
-  //   const hasErrors = validationResults.some((result) => result === false);
-
-  //   if (!hasErrors) {
-  //     onSubmitDraft(getValues());
-  //   } else {
-  //     console.log('Form is not valid. Cannot save as draft.');
-  //   }
-  // };
-
   return (
-    <form>
+    <form className="personal-info-form">
       <div>
         <label>First Name</label>
         <Controller
@@ -46,7 +20,7 @@ const PersonalInfoForm = ({
           name="firstName"
           render={({ field, fieldState: { error } }) => (
             <div>
-              <input {...field} />
+              <input {...field} disabled={shouldDisableAllFields} />
               {error && <p className="form-errors">{error.message}</p>}
             </div>
           )}
@@ -59,8 +33,108 @@ const PersonalInfoForm = ({
           name="lastName"
           render={({ field, fieldState: { error } }) => (
             <div>
-              <input {...field} />
+              <input {...field} disabled={shouldDisableAllFields} />
               {error && <p className="form-errors">{error.message}</p>}
+            </div>
+          )}
+        />
+      </div>
+      <div>
+        <label>Birthday</label>
+        <Controller
+          control={control}
+          name="birthday"
+          render={({ field, fieldState: { error } }) => (
+            <div>
+              <input type="date" {...field} disabled={shouldDisableAllFields} />
+              {error && <p className="form-errors">{error.message}</p>}
+            </div>
+          )}
+        />
+      </div>
+      <div>
+        <label>Gender</label>
+        <Controller
+          control={control}
+          name="gender"
+          render={({ field, fieldState: { error } }) => (
+            <div>
+              <select {...field} disabled={shouldDisableAllFields}>
+                <option value="">Select</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="na">N/A</option>
+              </select>
+              {error && <p className="form-errors">{error.message}</p>}
+            </div>
+          )}
+        />
+      </div>
+      <div>
+        <label>Marital Status</label>
+        <Controller
+          control={control}
+          name="maritalStatus"
+          render={({ field, fieldState: { error } }) => (
+            <div>
+              <select {...field} disabled={shouldDisableAllFields}>
+                <option value="">Select</option>
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+                <option value="widowed">Widowed</option>
+              </select>
+              {error && <p className="form-errors">{error.message}</p>}
+            </div>
+          )}
+        />
+      </div>
+      <div>
+        <label>Address</label>
+        <Controller
+          control={control}
+          name="address"
+          render={({ field, fieldState: { error } }) => (
+            <div>
+              <select {...field} disabled={shouldDisableAllFields}>
+                <option value="">Select</option>
+                <option value="bikiniBottom">Bikini Bottom</option>
+                <option value="jellyfishFields">Jellyfish Fields</option>
+                <option value="newKelpCity">New Kelp City</option>
+                <option value="rockBottom">Rocl Bottom</option>
+              </select>
+              {error && <p className="form-errors">{error.message}</p>}
+            </div>
+          )}
+        />
+      </div>
+      <div>
+        <label>Employee ID</label>
+        <Controller
+          control={control}
+          name="employeeId"
+          render={({ field, fieldState: { error } }) => (
+            <div>
+              <input
+                {...field}
+                disabled={shouldDisableEmployeeId || shouldDisableAllFields}
+              />
+              {error && <p className="form-errors">{error.message}</p>}
+            </div>
+          )}
+        />
+      </div>
+      <div>
+        <label>Form Status</label>
+        <Controller
+          control={control}
+          name="status"
+          render={({ field }) => (
+            <div>
+              <select {...field} disabled={true}>
+                <option value="new">New</option>
+                <option value="draft">Draft</option>
+                <option value="submitted">Submitted</option>
+              </select>
             </div>
           )}
         />

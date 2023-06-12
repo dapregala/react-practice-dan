@@ -9,10 +9,14 @@ const schema = yup.object().shape({
     .string()
     .oneOf(['single', 'married', 'widowed'])
     .required('Marital status is required'),
-  citizenship: yup
+  gender: yup
     .string()
-    .oneOf(['earthborn', 'martian', 'venux'])
-    .required('Citizenship is required'),
+    .oneOf(['male', 'female', 'na'])
+    .required('Gender is required'),
+  address: yup
+    .string()
+    .oneOf(['bikiniBottom', 'jellyfishFields', 'newKelpCity', 'rockBottom'])
+    .required('Address is required'),
   employeeId: yup
     .number()
     .required('Employee ID is required')
@@ -29,6 +33,7 @@ const schema = yup.object().shape({
       'Employee ID must be exactly 7 characters',
       (val) => val && val.toString().length === 7
     ),
+  status: yup.string().oneOf(['submitted', 'draft']),
 });
 
 export default schema;
