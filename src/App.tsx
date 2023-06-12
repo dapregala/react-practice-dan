@@ -31,7 +31,7 @@ const emptyEmployeeForm = {
 const initialEmployeeList = [
   {
     status: 'submitted',
-    birthday: '1900-01-09T16:00:00.000Z',
+    birthday: '1900-01-09',
     address: 'bikiniBottom',
     employeeId: 2345678,
     firstName: 'Squidward',
@@ -41,7 +41,7 @@ const initialEmployeeList = [
   },
   {
     status: 'submitted',
-    birthday: '1993-06-09T16:00:00.000Z',
+    birthday: '1993-06-09',
     address: 'bikiniBottom',
     employeeId: 5454123,
     firstName: 'Eugene',
@@ -51,7 +51,7 @@ const initialEmployeeList = [
   },
   {
     status: 'submitted',
-    birthday: '1993-06-09T16:00:00.000Z',
+    birthday: '1993-06-09',
     address: 'bikiniBottom',
     employeeId: 1234567,
     firstName: 'Spongebob',
@@ -104,6 +104,7 @@ export default function App() {
 
   const handleClickCancelEdit = () => {
     setFormMode('view');
+    personalInfoFormMethods.reset(employeeList[selectedEmployeeId])
   };
 
   const handlePersonalInfoSubmitAdd = (employee) => {
