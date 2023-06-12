@@ -7,6 +7,9 @@ import PersonalInfoForm from './PersonalInfoForm';
 import HobbiesAndInterestsForm from './HobbiesAndInterestsForm';
 import FavoriteThingsForm from './FavoriteThingsForm';
 import Swal from 'sweetalert2';
+import { FormProvider, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import personalInformationSchema from './schema/personalInformation'
 
 const emptyEmployeeForm = {
   status: 'new',
@@ -101,9 +104,17 @@ export default function App() {
     );
   };
 
+  const personalInfoFormMethods = useForm({
+    resolver: yupResolver(personalInformationSchema),
+    mode: 'onTouched',
+    values: employeeList[selectedEmployeeId],
+    context: { checkEmployeeIdUniqueness },
+  });
+
   return (
     <div className="app">
       <div className="sidebar">
+        <img className="logo" src="https://eatatthekrustykrab.files.wordpress.com/2018/04/logo.png"/>
         <h3>Employees</h3>
         <ul>
           {submittedList.map((emp) => {
@@ -171,16 +182,18 @@ export default function App() {
         <div className="content">
           {activeTab === 0 && (
             <div>
-              <PersonalInfoForm
-                values={
-                  selectedEmployeeId == 0
-                    ? emptyEmployeeForm
-                    : getEmployeeFromList(selectedEmployeeId, employeeList)
-                }
-                onSubmitFinal={handlePersonalInfoSubmitFinal}
-                onSubmitDraft={handlePersonalInfoSubmitDraft}
-                checkEmployeeIdUniqueness={checkEmployeeIdUniqueness}
-              ></PersonalInfoForm>
+              <FormProvider {...personalInfoFormMethods}>
+                <PersonalInfoForm
+                  values={
+                    selectedEmployeeId == 0
+                      ? emptyEmployeeForm
+                      : getEmployeeFromList(selectedEmployeeId, employeeList)
+                  }
+                  onSubmitFinal={handlePersonalInfoSubmitFinal}
+                  onSubmitDraft={handlePersonalInfoSubmitDraft}
+                  checkEmployeeIdUniqueness={checkEmployeeIdUniqueness}
+                ></PersonalInfoForm>
+              </FormProvider>
             </div>
           )}
 
