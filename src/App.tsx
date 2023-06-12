@@ -64,6 +64,10 @@ const initialEmployeeList = [
     employeeId: 9876543,
     firstName: 'Walter',
     lastName: 'White',
+    maritalStatus: '',
+    gender: '',
+    address: '',
+    birthday: ''
   },
 ].reduce((acc, employee) => {
   acc[employee.employeeId] = employee;

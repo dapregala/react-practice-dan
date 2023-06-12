@@ -104,7 +104,7 @@ const PersonalInfoForm = ({
                 <option value="bikiniBottom">Bikini Bottom</option>
                 <option value="jellyfishFields">Jellyfish Fields</option>
                 <option value="newKelpCity">New Kelp City</option>
-                <option value="rockBottom">Rocl Bottom</option>
+                <option value="rockBottom">Rock Bottom</option>
               </select>
               {error && <p className="form-errors">{error.message}</p>}
             </div>
